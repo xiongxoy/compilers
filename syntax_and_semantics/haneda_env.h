@@ -15,7 +15,6 @@ struct E_ast_ {
 	E_ast l;
 	E_ast r;
 };
-
 struct E_numval_ {
 	int nodetype;
 	int numtype;
@@ -25,7 +24,7 @@ struct E_numval_ {
 	} value;
 };
 
-/* ·ûºÅÁÐ±í */
+/* ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ */
 struct E_symlist_ {
 	E_symlist next;
 	E_symbol sym;
@@ -41,7 +40,6 @@ struct E_symbol_ {
 	} value;
 	E_symlist syms; /* func params */
 };
-
 
 E_symbol E_lookup( string name );
 E_ast E_newast(int nodetype, E_ast l, E_ast r);

@@ -8,13 +8,15 @@
 
 typedef struct U_list_ * U_list;
 
+/*
 #define iterate_with_val(head,x,type) 	for(U_list p=head;p;p=p->next) { \
 											if (p->val.x == x) \
 										 	 	 return p; \
 										}
+*/
 
-typedef char bool;
 typedef char * string;
+typedef char bool;
 #define TRUE 1
 #define FALSE 0
 

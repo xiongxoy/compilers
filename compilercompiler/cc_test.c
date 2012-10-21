@@ -19,4 +19,5 @@ int main() {
 	}
 
 	haneda_initialize();
+	printf("Done. \n");
 }

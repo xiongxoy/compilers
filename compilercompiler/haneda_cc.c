@@ -16,7 +16,7 @@ string rules_text[RULE_NR] = {
 };
 C_rule rules[RULE_NR] = {NULL,};
 C_state states[STATE_NR] = {NULL,}; // TODO 不知道够不够用
-C_table_item action_table[STATE_NR] = {NULL,};
+C_table_row action_table[STATE_NR] = {NULL,};
 
 void getNullFirstFollow();
 
@@ -78,7 +78,6 @@ C_token_list getTokenList(const string rule) {
 		list_insert(&list, &stack[size-1], INTEGER);
 		size--;
 	}
-
 	return list;
 }
 void list_print(U_list list) {
@@ -164,31 +163,34 @@ C_item findByRule() {
 	assert(0);
 	return NULL;
 }
-static int rule_find_id(string token_text) {
+static int token_find_id(string token_text) {
 	for(int i=0; tokens[i]; i++)
 		if (0 == strcmp(token_text, tokens[i]->text))
 				return i;
 	assert(0);
-	return NULL;
+	return (int)NULL;
 }
 /**
- * 把记录text的first和follow集转化为几率id的集合
+ * 把记录text的first和follow集转化为id的集合
  */
 static U_set string_to_id (U_set set) {
 	U_set ret = NULL;
 	int id = 0;
 	for(U_set p = set; p; p = p->next) {
-		id = rule_find_id(p->val.s);
+		id = token_find_id(p->val.s);
 		set_insert(&ret, &id, INTEGER);
 		assert(strcmp(p->val.s, "null") != 0);
 	}
 	return ret;
 }
 
-//TEST
+//TODO bug here
 U_list list_dup(U_list list) {
 	U_list ret = checked_malloc(sizeof *ret);
 	U_list pre = NULL;
+
+	if( NULL == list ) return NULL;
+
 	ret->next = NULL;
 	ret->nodetype = list->nodetype;
 	switch(list->nodetype) {
@@ -253,12 +255,12 @@ bool set_cmp(U_set A, U_set B) {
 	}
 	return same;
 }
-static void statefree(C_state I) {
+
+static void state_free(C_state I) {
 	; //TODO implement state free
 	return ;
-	statefree(I);
+	state_free(I);
 }
-
 bool statecmp(C_state I, C_state J) {
 	bool same = TRUE;
 	C_item_list p = NULL;
@@ -280,12 +282,7 @@ bool statecmp(C_state I, C_state J) {
 	}
 	return same;
 }
-/* t */
-typedef enum {
-	SHIFT,
-	REDUCE,
-	ERROR
-} act_type;
+
 /**
  *TEST
  */
@@ -293,7 +290,6 @@ int gotoClosure(int state_id, int token_id) {
 	C_state I = states[state_id];
 	C_token x = tokens[token_id];
 	C_state J = NULL;
-	act_type type = -1;
 
 	J = checked_malloc(sizeof *J);
 	J->items = NULL;
@@ -302,18 +298,21 @@ int gotoClosure(int state_id, int token_id) {
 	for(C_item_list p = I->items; p; p=p->next) {
 		C_token_list rule_tail = item_getTokenAfterPoint(p->item);
 		if(rule_tail && token_id == rule_tail->val.d) {
+			if( 0 == p->item->rule_id && 0 == strcmp(tokens_text[token_id], "$") ) {
+				return 1024;
+			}
 			C_item item = checked_malloc(sizeof *item);
 			item->rule_id = p->item->rule_id;
 			item->point = p->item->point+1;
-			item->syms = list_dup(p->item->syms);   // RISKY 生成新的列表
+			item->syms = p->item->syms;//list_dup(p->item->syms);   // RISKY 生成新的列表
 			C_item_list ilist = checked_malloc(sizeof *ilist);
 			ilist->item = item;
-			ilist->next = J->items ? NULL:J->items->next; // RISKY WTF??
+			ilist->next = J->items ? J->items->next:NULL; // RISKY WTF??
 			J->items = ilist;
 			J->size++;
 		}
 	}
-	if (NULL == J) return -1;
+	if (NULL == J->items) return -1;
 	return closure(J);
 }
 
@@ -338,7 +337,7 @@ int closure(C_state I) {
 				C_token_set syms = NULL;
 				C_token_list ptr = NULL;
 				for(ptr = rule_tail; ptr; ptr = ptr->next ) {
-					C_token_set first =  string_to_id(tokens[ptr->val.d].first);
+					C_token_set first =  string_to_id(tokens[ptr->val.d]->first);
 					set_union(&syms, &first); /* 现在因为规则中没有null的存在，暂不考虑空的情况 TODO 考虑空 */
 					if( !tokens[ptr->val.d]->nullable )
 						break;
@@ -349,7 +348,7 @@ int closure(C_state I) {
 
 				C_item_list q = NULL;
 				for(q = I->items; q; q = q->next) {
-					if(q->item.rule_id == i && q->item.point == 0) {
+					if(q->item->rule_id == i && q->item->point == 0) {
 						set_union(&q->item->syms, &syms);
 						//set_free(syms); TODO free
 						goto next;
@@ -370,6 +369,7 @@ next:			;
 	}
 
 	int i=0;
+	assert(I);
 	for(i=0; states[i]; i++) {
 		assert( i<1050 );
 		if(statecmp(states[i],I) == TRUE) {state_free(I);return i;}
@@ -377,7 +377,6 @@ next:			;
 	states[i] = I;
 	return i;
 }
-
 
 void generate_LR1_Table() {
 	C_state I = checked_malloc( sizeof *I );
@@ -387,14 +386,85 @@ void generate_LR1_Table() {
 	I->items->item = checked_malloc( sizeof *I->items->item );
 	I->items->item->point = 0;
 	I->items->item->rule_id = 0;
-	I->items->item->syms = NULL; // RISKY 因为初始的项目不会被移进
+	if(item_getTokenAfterPoint(I->items->item) != NULL)
+		I->items->item->syms =  string_to_id(tokens[item_getTokenAfterPoint(I->items->item)->val.d]->first); // RISKY 没有考虑点后面有空的情况
+	else
+		assert(0);
 	int state_id = closure(I);
-	states[0] = I;
-	for(int i=0; tokens[i]; i++) {
-		gotoClosure(state_id, i);
+
+	assert(state_id == 0);
+	states[state_id] = I;
+	for(int id = state_id; states[id]; id++) {
+		action_table[id] = checked_malloc(sizeof *action_table[id]);
+		for(int i=0; i<TOKEN_NR; i++) {
+			action_table[id]->actions[i] = -1;
+			action_table[id]->type[i]=ERROR;
+		}
+		for(int i=0; tokens[i]; i++) {
+			action_table[id]->actions[i] = gotoClosure(id, i);
+			if( action_table[id]->actions[i] == -1) {
+				action_table[id]->type[i] = ERROR;
+				continue;
+			}
+			else if( action_table[id]->actions[i] == 1024 ) {
+				action_table[id]->type[i] = ACC;
+				continue;
+			}
+			action_table[id]->type[i] = (tokens[i]->type == TERMINAL)?SHIFT:GOTO;
+		}
+		for(C_item_list p = states[id]->items; p; p=p->next) {
+			if( NULL == item_getTokenAfterPoint(p->item) ) {
+				for(C_token_list q=p->item->syms; q; q=q->next) {
+					if(action_table[id]->actions[q->val.d] != -1) {
+						printf("conflict: at state %d, pre shift is %d, latter reduce is %d\n", id, action_table[id]->actions[q->val.d], p->item->rule_id);
+					}
+					action_table[id]->actions[q->val.d] = p->item->rule_id;
+					action_table[id]->type[q->val.d] = REDUCE;
+				}
+			}
+		}
+		/*** debug ******/
+		printf("In state %d: ", id);
+		for(int i=0; tokens[i]; i++) {
+			switch(action_table[id]->type[i]) {
+			case REDUCE:
+				printf("r");
+				break;
+			case SHIFT:
+				printf("s");
+				break;
+			case GOTO:
+				printf("g");
+				break;
+			case ERROR:
+				printf("e");
+				break;
+			case ACC:
+				printf("a");
+				break;
+			default:
+				printf("???\n");
+				printf("strange is: %d\n", action_table[id]->type[i]);
+				fflush(stdout);
+				assert(0);
+				break;
+			}
+			printf("%d ", action_table[id]->actions[i]);
+		}
+		printf("\n");
 	}
-
-
+	for(int i=0; states[i]; i++) {
+		assert(states[i]->items);
+		printf("state %d:\n", i);
+		for(C_item_list p = states[i]->items; p; p=p->next) {
+			printf("rule: %s, point: %d, ", rules_text[p->item->rule_id], p->item->point);
+			for(C_token_list q = p->item->syms; q; q=q->next) {
+				printf("%s ", tokens_text[q->val.d]);
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
 }
 
 void haneda_initialize() {
@@ -409,13 +479,15 @@ void haneda_initialize() {
 	/**** body end *****/
 	done = TRUE;
 }
-
-static C_token token_find( const string token_text ) {
+int token_find_id( const string token_text ) {
 	for(int i=0; tokens[i]; i++)
 		if (0 == strcmp(token_text, tokens[i]->text))
-				return tokens[i];
+				return i;
 	assert(0);
-	return NULL;
+	return -1;
+}
+static C_token token_find( const string token_text ) {
+	return tokens[token_find_id(token_text)];
 }
 
 
@@ -428,11 +500,11 @@ void getNullFirstFollow() {
 			continue;
 		set_insert(&tokens[i]->first, &tokens[i]->text, STRING);
 	}
+	bool touched = TRUE;
 	token_find("null")->nullable = TRUE;
 	string s = "$";
 	set_insert(&token_find("S")->follow, &s, STRING);
 
-	bool touched = TRUE;
 	while( TRUE ) {
 		if(!touched)
 			break;
@@ -484,8 +556,4 @@ next:
 			}
 		}
 	}
-}
-
-void gototable() {
-
 }
