@@ -1,0 +1,156 @@
+//		"primary_expression: IDENTIFIER ", OK
+if( 1 == act_num ) { 
+}
+
+//		"primary_expression: CONSTANT ", OK
+if( 2 == act_num ) { 
+}
+
+//		"postfix_expression: primary_expression ", 
+if( 5 == act_num ) { 
+}
+
+//		"unary_expression: postfix_expression ",
+if( 17 == act_num ) { 
+}
+
+//		"cast_expression: unary_expression ",
+if( 27 == act_num ) { 
+}
+
+//		"multiplicative_expression: cast_expression ",
+if( 29 == act_num ) { 
+}
+
+//		"additive_expression: multiplicative_expression ",
+if( 33 == act_num ) { 
+}
+
+//		"additive_expression: additive_expression + multiplicative_expression ",
+if( 34 == act_num ) { 
+}
+
+//		"shift_expression: additive_expression ",
+if( 36 == act_num ) { 
+}
+
+//		"relational_expression: shift_expression ",
+if( 39 == act_num ) { 
+}
+
+//		"equality_expression: relational_expression ",
+if( 44 == act_num ) { 
+}
+
+//		"and_expression: equality_expression ",
+if( 47 == act_num ) { 
+}
+
+//		"exclusive_or_expression: and_expression ",
+if( 49 == act_num ) { 
+}
+
+//		"inclusive_or_expression: exclusive_or_expression ",
+if( 51 == act_num ) { 
+}
+
+//		"logical_and_expression: inclusive_or_expression ",
+if( 53 == act_num ) { 
+}
+
+//		"logical_or_expression: logical_and_expression ",
+if( 55 == act_num ) { 
+}
+
+//		"conditional_expression: logical_or_expression ",
+if( 57 == act_num ) { 
+}
+
+//		"assignment_expression: conditional_expression ",
+if( 59 == act_num ) { 
+}
+
+//		"assignment_expression: unary_expression assignment_operator assignment_expression ",
+if( 60 == act_num ) { 
+}
+
+//		"assignment_operator: = ",
+if( 61 == act_num ) { 
+}
+
+//		"expression: assignment_expression ",
+if( 71 == act_num ) { 
+}
+
+//		"declaration_specifiers: type_specifier ",
+if( 74 == act_num ) { 
+}
+
+//		"declaration: declaration_specifiers init_declarator_list ; ",
+if( 77 == act_num ) { 
+}
+
+//		"init_declarator_list: init_declarator ",
+if( 78 == act_num ) { 
+}
+
+//		"init_declarator: declarator ",
+if( 80 == act_num ) { 
+}
+
+//		"type_specifier: INT ",
+if( 82 == act_num ) { 
+}
+
+//		"declarator: direct_declarator ",
+if( 84 == act_num ) { 
+}
+
+//		"direct_declarator: IDENTIFIER ",
+if( 85 == act_num ) { 
+}
+
+//		"direct_declarator: direct_declarator ( ) ",
+if( 92 == act_num ) { 
+}
+
+//		"statement: expression_statement ",
+if( 127 == act_num ) { 
+}
+
+//		"compound_statement: { block_item_list } ",
+if( 132 == act_num ) { 
+}
+
+//		"block_item_list: block_item ",
+if( 133 == act_num ) { 
+}
+
+//		"block_item_list: block_item_list block_item ",
+if( 134 == act_num ) { 
+}
+
+//		"block_item: declaration ",
+if( 135 == act_num ) { 
+}
+
+//		"block_item: statement ",
+if( 136 == act_num ) { 
+}
+
+//		"expression_statement: expression ; ",
+if( 138 == act_num ) { 
+}
+
+//		"translation_unit: external_declaration ",
+if( 150 == act_num ) { 
+}
+
+//		"external_declaration: function_definition ",
+if( 152 == act_num ) { 
+}
+
+//		"function_definition: declaration_specifiers declarator compound_statement ",
+if( 155 == act_num ) { 
+}
+

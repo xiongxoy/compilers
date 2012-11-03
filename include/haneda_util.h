@@ -41,6 +41,7 @@ typedef U_list U_set;
 /******* debug *****************/
 void haneda_dbg();
 /******* Memory ****************/
+string checked_strdup( string s);
 void *checked_malloc(int);
 /******* Linked List ***********/
 U_list list_find(U_list head, void * val);
@@ -51,6 +52,6 @@ int set_insert(U_set * set, void * val, val_type type);
 int set_union(U_set * set1, const U_set * set2);
 void set_free(U_set set);
 /******* Hash Table ************/
-// TODO ʵ��һ��һ���hash table�б�Ҫ����û�а�
+// TODO TO Be Implemented
 
 #endif

@@ -1,17 +1,19 @@
 #include "haneda_lex.h"
 #include "../include/haneda_util.h"
 
-// TODO ÑĞ¾¿ÏÂÔõÃ´ÅäÖÃEclipseµÄmakeÃüÁî
+// TODO ï¿½Ğ¾ï¿½ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½Eclipseï¿½ï¿½makeï¿½ï¿½ï¿½ï¿½
 int	main() {
 	int ret = 0;
+	lex_init();
 	ret = start("testprog.c");
 	printf("open file: %d\n", ret);
 	assert(start("testprog.c"));
-	while ( (ret = lex()) != EOF && ret != 0) {
-		printf("%d\n", ret);
+	while ( (ret = lex()) != '$' && ret != 0) {
 		printbuffer();
+		printf("%d\n\n", ret);
+
 	}
-	printf("ret: %d\n", ret==EOF);
+	printf("ret: %d\n", ret=='$');
 	printf("end\n");
 	return 0;
 }

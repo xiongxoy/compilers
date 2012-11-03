@@ -11,32 +11,32 @@
 					|| (c)=='{' || (c)=='}' || (c)=='[' || (c)==']' \
 					|| (c)=='*' || (c)=='/' || (c) == '=' || (c)=='&'
 enum {
-	NUM = 260,
-	STR_LITERAL,
-	NAME,
-	INT,
-	FLOAT,
-	IF,
-	FOR,
-	ELSE,
-	RETURN,
-	INCREMENT,
-	DECREMENT,
-	LS_EQ,
-	BG_EQ
+	L_CONSTANT = 260,
+	L_STRING_LITERAL,
+	L_IDENTIFIER ,
+	L_INT,
+	L_FLOAT,
+	L_IF,
+	L_FOR,
+	L_ELSE,
+	L_RETURN,
+	L_INCREMENT,
+	L_DECREMENT,
+	L_LS_EQ,
+	L_BG_EQ
 };
-
+typedef enum {NM_F = 1, NM_I} num_type;
 struct lexval {
     string s;
-    enum {NM_F, NM_D} type;
+    num_type num_t;
     int d;
     double f;
-} val;
+} * val;
 
-static FILE * file ;
-static char buffer[1025];
-static int count  = 0;
 
+
+void val_cpy(struct lexval * dest, const struct lexval * src);
+void lex_init();
 int start(const string file_name);
 void printbuffer();
 int lex() ;

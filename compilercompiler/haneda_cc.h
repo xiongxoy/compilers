@@ -26,9 +26,9 @@ typedef struct C_state_ * C_state;
 typedef U_list C_token_list;
 typedef U_set  C_token_set;
 
-#define TOKEN_NR 128
-#define RULE_NR 100
-#define STATE_NR 1050
+#define TOKEN_NR 230
+#define RULE_NR 270
+#define STATE_NR 2000
 typedef enum {
 	SHIFT,
 	REDUCE,
@@ -38,6 +38,7 @@ typedef enum {
 } act_type;
 
 extern string rules_text[RULE_NR];
+extern int tokens_type[TOKEN_NR];
 extern C_rule rules[RULE_NR];
 extern string tokens_text[TOKEN_NR];
 extern C_table_row action_table[STATE_NR];
@@ -70,7 +71,7 @@ struct C_rule_ {
 struct C_token_ {
 	string text;
 	enum {
-		TERMINAL,
+		TERMINAL = 1,
 		NON_TERMINAL
 	} type;
 	bool nullable;
@@ -87,7 +88,7 @@ void set_print( U_set set );
 bool set_cmp(U_set A, U_set B);
 int getTokenNr(const string token);
 int getHeadNr(const string rule);
-C_token token_find_id( const string token_text);
+int token_find_id( const string token_text);
 C_token_list getTokenList(const string rule);
 void rule_textTotokens();
 

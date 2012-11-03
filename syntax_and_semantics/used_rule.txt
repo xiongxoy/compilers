@@ -1,0 +1,108 @@
+Reduce by rule 82 : type_specifier: INT 
+Reduce by rule 74 : declaration_specifiers: type_specifier 
+Reduce by rule 85 : direct_declarator: IDENTIFIER 
+Reduce by rule 92 : direct_declarator: direct_declarator ( ) 
+Reduce by rule 84 : declarator: direct_declarator 
+Reduce by rule 82 : type_specifier: INT 
+Reduce by rule 74 : declaration_specifiers: type_specifier 
+Reduce by rule 85 : direct_declarator: IDENTIFIER 
+Reduce by rule 84 : declarator: direct_declarator 
+Reduce by rule 80 : init_declarator: declarator 
+Reduce by rule 78 : init_declarator_list: init_declarator 
+Reduce by rule 77 : declaration: declaration_specifiers init_declarator_list ; 
+Reduce by rule 135 : block_item: declaration 
+Reduce by rule 133 : block_item_list: block_item 
+Reduce by rule 1 : primary_expression: IDENTIFIER 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 61 : assignment_operator: = 
+Reduce by rule 2 : primary_expression: CONSTANT 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 27 : cast_expression: unary_expression 
+Reduce by rule 29 : multiplicative_expression: cast_expression 
+Reduce by rule 33 : additive_expression: multiplicative_expression 
+Reduce by rule 36 : shift_expression: additive_expression 
+Reduce by rule 39 : relational_expression: shift_expression 
+Reduce by rule 44 : equality_expression: relational_expression 
+Reduce by rule 47 : and_expression: equality_expression 
+Reduce by rule 49 : exclusive_or_expression: and_expression 
+Reduce by rule 51 : inclusive_or_expression: exclusive_or_expression 
+Reduce by rule 53 : logical_and_expression: inclusive_or_expression 
+Reduce by rule 55 : logical_or_expression: logical_and_expression 
+Reduce by rule 57 : conditional_expression: logical_or_expression 
+Reduce by rule 59 : assignment_expression: conditional_expression 
+Reduce by rule 60 : assignment_expression: unary_expression assignment_operator assignment_expression 
+Reduce by rule 71 : expression: assignment_expression 
+Reduce by rule 138 : expression_statement: expression ; 
+Reduce by rule 127 : statement: expression_statement 
+Reduce by rule 136 : block_item: statement 
+Reduce by rule 134 : block_item_list: block_item_list block_item 
+Reduce by rule 1 : primary_expression: IDENTIFIER 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 61 : assignment_operator: = 
+Reduce by rule 1 : primary_expression: IDENTIFIER 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 27 : cast_expression: unary_expression 
+Reduce by rule 29 : multiplicative_expression: cast_expression 
+Reduce by rule 33 : additive_expression: multiplicative_expression 
+Reduce by rule 2 : primary_expression: CONSTANT 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 27 : cast_expression: unary_expression 
+Reduce by rule 29 : multiplicative_expression: cast_expression 
+Reduce by rule 34 : additive_expression: additive_expression + multiplicative_expression 
+Reduce by rule 36 : shift_expression: additive_expression 
+Reduce by rule 39 : relational_expression: shift_expression 
+Reduce by rule 44 : equality_expression: relational_expression 
+Reduce by rule 47 : and_expression: equality_expression 
+Reduce by rule 49 : exclusive_or_expression: and_expression 
+Reduce by rule 51 : inclusive_or_expression: exclusive_or_expression 
+Reduce by rule 53 : logical_and_expression: inclusive_or_expression 
+Reduce by rule 55 : logical_or_expression: logical_and_expression 
+Reduce by rule 57 : conditional_expression: logical_or_expression 
+Reduce by rule 59 : assignment_expression: conditional_expression 
+Reduce by rule 60 : assignment_expression: unary_expression assignment_operator assignment_expression 
+Reduce by rule 71 : expression: assignment_expression 
+Reduce by rule 138 : expression_statement: expression ; 
+Reduce by rule 127 : statement: expression_statement 
+Reduce by rule 136 : block_item: statement 
+Reduce by rule 134 : block_item_list: block_item_list block_item 
+Reduce by rule 1 : primary_expression: IDENTIFIER 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 61 : assignment_operator: = 
+Reduce by rule 1 : primary_expression: IDENTIFIER 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 27 : cast_expression: unary_expression 
+Reduce by rule 29 : multiplicative_expression: cast_expression 
+Reduce by rule 33 : additive_expression: multiplicative_expression 
+Reduce by rule 2 : primary_expression: CONSTANT 
+Reduce by rule 5 : postfix_expression: primary_expression 
+Reduce by rule 17 : unary_expression: postfix_expression 
+Reduce by rule 27 : cast_expression: unary_expression 
+Reduce by rule 29 : multiplicative_expression: cast_expression 
+Reduce by rule 34 : additive_expression: additive_expression + multiplicative_expression 
+Reduce by rule 36 : shift_expression: additive_expression 
+Reduce by rule 39 : relational_expression: shift_expression 
+Reduce by rule 44 : equality_expression: relational_expression 
+Reduce by rule 47 : and_expression: equality_expression 
+Reduce by rule 49 : exclusive_or_expression: and_expression 
+Reduce by rule 51 : inclusive_or_expression: exclusive_or_expression 
+Reduce by rule 53 : logical_and_expression: inclusive_or_expression 
+Reduce by rule 55 : logical_or_expression: logical_and_expression 
+Reduce by rule 57 : conditional_expression: logical_or_expression 
+Reduce by rule 59 : assignment_expression: conditional_expression 
+Reduce by rule 60 : assignment_expression: unary_expression assignment_operator assignment_expression 
+Reduce by rule 71 : expression: assignment_expression 
+Reduce by rule 138 : expression_statement: expression ; 
+Reduce by rule 127 : statement: expression_statement 
+Reduce by rule 136 : block_item: statement 
+Reduce by rule 134 : block_item_list: block_item_list block_item 
+Reduce by rule 132 : compound_statement: { block_item_list } 
+Reduce by rule 155 : function_definition: declaration_specifiers declarator compound_statement 
+Reduce by rule 152 : external_declaration: function_definition 
+Reduce by rule 150 : translation_unit: external_declaration 

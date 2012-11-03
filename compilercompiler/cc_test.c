@@ -2,6 +2,7 @@
 #include "haneda_cc.h"
 
 int main() {
+	/*
 	string rule_text = "T: ( L )";
 
 	C_rule rule = malloc( sizeof *rule );
@@ -9,7 +10,7 @@ int main() {
 	rule->list = getTokenList(rule_text);
 
 	assert(rule->head_token_nr == 1);
-	assert(getTokenNr("T") == 1);
+	assert(getTokenNr("$") == 0);
 	assert(getTokenNr("(") == 4);
 	assert(getTokenNr(")") == 5);
 	assert(getTokenNr("L") == 3);
@@ -17,6 +18,7 @@ int main() {
 	for(C_token_list p = rule->list; p; p=p->next) {
 		printf("%d\n", p->val.d);
 	}
+*/
 
 	haneda_initialize();
 	printf("Done. \n");

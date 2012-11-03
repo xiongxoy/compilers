@@ -1,8 +1,9 @@
-%token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
+%glr-parser 
+%token IDENTIFIER CONSTANT STRING_LITERAL 
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
-%token XOR_ASSIGN OR_ASSIGN TYPE_NAME
+%token OR_ASSIGN TYPE_NAME
  
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
 %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
@@ -138,7 +139,6 @@ assignment_operator
         | LEFT_ASSIGN
         | RIGHT_ASSIGN
         | AND_ASSIGN
-        | XOR_ASSIGN
         | OR_ASSIGN
         ;
  
@@ -320,7 +320,7 @@ function_definition
         : declaration_specifiers declarator declaration_list compound_statement
         | declaration_specifiers declarator compound_statement
         ;
- 
+  
 declaration_list
         : declaration
         | declaration_list declaration
@@ -339,3 +339,5 @@ char *s;
         fflush(stdout);
         printf("\n%*s\n%*s\n", column, "^", column, s);
 }
+
+

@@ -1,11 +1,33 @@
 #include "haneda_lex.h"
 
+static FILE * file ;
+static char buffer[1025];
+static int count  = 0;
+
 int start(const string file_name) {
 	return (int)(file = fopen(file_name, "r"));
 }
 
 void printbuffer() {
 	printf("%s\n", buffer);
+}
+/* deep copy struct lexval */
+void val_cpy(struct lexval * dest, const struct lexval * src) {
+	assert(dest && src);
+	dest->d = src->d;
+	dest->f = src->f;
+	dest->s = strdup(src->s);
+	dest->num_t = src->num_t;
+}
+void lex_init() {
+	static bool done = FALSE;
+	if(done) return;
+	val = checked_malloc(sizeof *val);
+	val->d = 0;
+	val->f = 0.0;
+	val->s = NULL;
+	val->num_t = NM_F;
+	done = TRUE;
 }
 int lex() {
 	char c;
@@ -34,28 +56,28 @@ int lex() {
 					ungetc(c,file);
 					buffer[ count ] = '\0';
 					if( strcmp("int", buffer) == 0) {
-						return INT;
+						return L_INT;
 					}
 					if( strcmp("float", buffer) == 0) {
-						return FLOAT;
+						return L_FLOAT;
 					}
 					if( strcmp("if", buffer) == 0) {
-						return IF;
+						return L_IF;
 					}
 					if( strcmp("for", buffer) == 0) {
-						return FOR;
+						return L_FOR;
 					}
 					if( strcmp("else", buffer) == 0) {
-						return ELSE;
+						return L_ELSE;
 					}
 					if( strcmp("return", buffer) == 0) {
-						return RETURN;
+						return L_RETURN;
 					}
 
 					string result = malloc(count+1);
 					strcpy(result, buffer);
-					val.s = result;
-					return NAME;
+					val->s = result;
+					return L_IDENTIFIER;
 				}
 		        c = getc(file);
 		    }
@@ -104,14 +126,18 @@ int lex() {
 					ungetc(c,file);
 					buffer[count] = '\0';
 					if(!isfloat) {
-						val.type = NM_D;
-						sscanf(buffer, "%d", &val.d);
-						return NUM;
+						val->num_t = NM_I;
+						sscanf(buffer, "%d", &val->d);
+						val->s = checked_malloc( strlen(buffer)+1);
+						strcpy(val->s, buffer);
+						return L_CONSTANT;
 					}
 					else {
-						val.type = NM_F;
-						sscanf(buffer, "%lf", &val.f);
-						return NUM;
+						val->num_t = NM_F;
+						sscanf(buffer, "%lf", &val->f);
+						val->s = checked_malloc( strlen(buffer)+1);
+						strcpy(val->s, buffer);
+						return L_CONSTANT;
 					}
 					break;
 				}
@@ -131,8 +157,8 @@ int lex() {
 					string result = malloc(count+1);
 					buffer[count] = '\0';
 					strcpy(result, buffer);
-					val.s = result;
-					return STR_LITERAL;
+					val->s = result;
+					return L_STRING_LITERAL;
 				}
 			 }
 		}
@@ -147,7 +173,7 @@ int lex() {
 				buffer[0] = '+';
 				buffer[1] = '+';
 				buffer[2] = '\0';
-				return INCREMENT;
+				return L_INCREMENT;
 			}
 			else {
 				ungetc(c,file);
@@ -157,7 +183,7 @@ int lex() {
 		else if (c == '-') {
 			c = getc(file);
 			if ( c=='-' ) {
-				return DECREMENT;
+				return L_DECREMENT;
 			}
 			else {
 				ungetc(c,file);
@@ -167,7 +193,7 @@ int lex() {
 		else if (c == '<') {
 			c = getc(file);
 			if ( c=='=') {
-				return LS_EQ;
+				return L_LS_EQ;
 			}
 			else {
 				ungetc(c,file);
@@ -177,7 +203,7 @@ int lex() {
 		else if (c == '>') {
 			c = getc(file);
 			if ( c=='=' ) {
-				return BG_EQ;
+				return L_BG_EQ;
 			}
 			else {
 				ungetc(c,file);
@@ -185,12 +211,12 @@ int lex() {
 			}
 		}
 		else if ( c == EOF ) {
-			return EOF;
+			return '$';
 		}
 		else {
 			return 0;
 		}
 	}
 
-	return EOF;
+	return '$';
 }

@@ -13,6 +13,13 @@ void *checked_malloc(int n) {
     return p;
 }
 
+string checked_strdup( string s ) {
+	assert(s);
+	string ret = checked_malloc( strlen(s) + 1);
+	strcpy(ret, s);
+	return ret;
+}
+
 U_list list_find(U_list head, void * val) {
 	int d = *(int *)val;
 	string s = *(string *)val;
@@ -66,7 +73,7 @@ void list_insert(U_list * head, void * val, val_type type) {
 		temp = (string)checked_malloc( strlen(s) + 1);
 		strcpy(temp, s);
 		/*
-		for(int i=0; ; i++) { // TODO ÎªÊ²Ã´ÔÚÕâÀï¸³Öµ»áÔì³É»ìÂÒ
+		for(int i=0; ; i++) { // TODO ÎªÊ²Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¸³Öµï¿½ï¿½ï¿½ï¿½É»ï¿½ï¿½ï¿½
 			temp[i] = (p->val.s)[i];
 			if (temp[i] == '\0')
 				break;
@@ -114,8 +121,8 @@ int set_insert(U_set *set, void * val, val_type type) {
 }
 
 /***
- * ÒòÎª¿ÉÄÜĞèÒª¶Ôset1½øĞĞ³õÊ¼»¯£¬ËùÒÔÒª´«Ö¸Ïòset1µÄÖ¸Õë
- * @ret count set1ÖĞÔªËØÔö¼ÓµÄ¸öÊı
+ * ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½set1ï¿½ï¿½ï¿½Ğ³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Ö¸ï¿½ï¿½set1ï¿½ï¿½Ö¸ï¿½ï¿½
+ * @ret count set1ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ÓµÄ¸ï¿½ï¿½ï¿½
  */
 int set_union(U_set * set1, const U_set * set2) {
 	int count = 0;
