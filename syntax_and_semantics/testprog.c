@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 
 char * s = "hard string\n";
 int add(int a, int b) {

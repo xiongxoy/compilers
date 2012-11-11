@@ -1,12 +1,12 @@
-//		"primary_expression: IDENTIFIER ", OK
+//		"primary_expression: IDENTIFIER ",
 if( 1 == act_num ) { 
 }
 
-//		"primary_expression: CONSTANT ", OK
+//		"primary_expression: CONSTANT ",
 if( 2 == act_num ) { 
 }
 
-//		"postfix_expression: primary_expression ", 
+//		"postfix_expression: primary_expression ",
 if( 5 == act_num ) { 
 }
 

@@ -14,9 +14,11 @@ void *checked_malloc(int n) {
 }
 
 string checked_strdup( string s ) {
+	string ret;
 	assert(s);
-	string ret = checked_malloc( strlen(s) + 1);
-	strcpy(ret, s);
+//	strcpy(ret, s);
+	ret = strdup(s);
+	assert(ret);
 	return ret;
 }
 

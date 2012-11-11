@@ -1,0 +1,57 @@
+	.file	"simple1.c"
+	.text
+	.section	.rodata
+	.align 4
+.LC0:
+	.string "Hello %d\n"
+	.global main
+	.type main, @function
+	main:
+.LFB0:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl %esp, %ebp
+	.cfi_def_cfa_register 5
+	subl $24, %esp
+	movl $10, %eax
+	movl %eax, -4(%ebp)
+	movl $20, %eax
+	movl %eax, -8(%ebp)
+	movl $4, %eax
+	movl %eax, -4(%ebp)
+	movl $5, %eax
+	movl %eax, -8(%ebp)
+	movl $0, %eax
+	movl %eax, -4(%ebp)
+.L1:
+	movl $1, -12(%ebp)
+	movl $5, %eax
+	cmpl %eax, -4(%ebp)
+	jl .L0
+	movl $0, -12(%ebp)
+.L0:
+	cmpl $1, -12(%ebp)
+	jne  .L2
+	movl $1, %eax
+	movl %eax, -4(%ebp)
+	movl $6, %eax
+	movl %eax, -4(%ebp)
+	addl $1, -4(%ebp)
+	jmp .L1
+.L2:
+	movl -4(%ebp), %eax
+	movl %eax, 4(%esp)
+	movl $.LC0, %eax
+	movl %eax, 0(%esp)
+	call	printf
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+.LBE0:	.size main, .-main
+	.ident	"GCC: (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3"
+	.section	.note.GNU-stack,"",@progbits
+
