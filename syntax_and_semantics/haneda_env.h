@@ -93,7 +93,11 @@ typedef enum {
 	E_CONT_FOR,
 	E_REL_L,
 	E_REL_GE,
-	E_INC_OP
+	E_INC_OP,
+	E_UNARY_EXP,
+	E_TAKE_ADDR,
+	E_DECLAR_STORAGE,
+	E_INIT_VAL_LIST,
 } node_type;
 typedef enum {
 	E_NONE_TYPE = 1,
@@ -101,6 +105,7 @@ typedef enum {
 	E_FLOAT_TYPE,
 	E_CHAR_TYPE,
 	E_STRING_LIETRAL_TYPE,
+	E_POINTER,
 } var_type;
 typedef enum {
 	E_CONST_SYM = 1,
@@ -126,8 +131,9 @@ struct E_symbol_ {
 	E_ast func; /* func */
 	E_symlist syms; /* func params */
 /******** array ***********/
-	U_list d_list;
-	int d_size;
+	int width; // 1d array
+//	U_list d_list;
+//	int d_size;
 };
 struct E_ast_ {
 	int type;

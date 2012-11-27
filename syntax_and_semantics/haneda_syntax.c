@@ -159,7 +159,6 @@ void syntax(string filename) {
 
 			//		"postfix_expression: postfix_expression [ expression ] ", E_ARRAY_REF
 			if( 6 == act_num ) {
-				assert(0);
 				head_token->ast = E_newast(E_ARRAY_REF, $(4)->ast, $(2)->ast);
 			}
 
@@ -189,15 +188,18 @@ void syntax(string filename) {
 
 			//		"unary_expression: postfix_expression ",
 			if( 17 == act_num ) {
+				//TODO make new node for processing
 				head_token->ast = $(1)->ast;
 			}
 
 			//		"unary_expression: unary_operator cast_expression ",
 			if( 20 == act_num ) {
+				head_token->ast = E_newast(E_UNARY_EXP, $(2)->ast, $(1)->ast);
 			}
 
 			//		"unary_operator: & ",
 			if( 21 == act_num ) {
+				head_token->ast = E_newast(E_TAKE_ADDR, NULL, NULL);
 			}
 
 			//		"cast_expression: unary_expression ",
@@ -320,6 +322,7 @@ void syntax(string filename) {
 			//		"declaration: declaration_specifiers init_declarator_list ; ",
 			if( 77 == act_num ) {
 				head_token->ast = E_newast(E_DECLARATION, $(3)->ast, $(2)->ast);
+
 			}
 
 			//		"init_declarator_list: init_declarator ",
@@ -333,6 +336,7 @@ void syntax(string filename) {
 
 			//		"init_declarator: declarator ",
 			if( 80 == act_num ) {
+				//TODO make new node for processing
 				head_token->ast = $(1)->ast;
 			}
 
@@ -361,7 +365,7 @@ void syntax(string filename) {
 
 			//		"declarator: direct_declarator ",
 			if( 84 == act_num ) {
-				head_token->ast = $(1)->ast;
+				head_token->ast = E_newast(E_DECLAR_STORAGE, $(1)->ast, NULL);
 			}
 
 			//		"direct_declarator: IDENTIFIER ",
@@ -422,11 +426,12 @@ void syntax(string filename) {
 
 			//		"initializer_list: initializer ",
 			if( 117 == act_num ) {
-				head_token->ast = $(1)->ast;
+				head_token->ast = E_newast(E_INIT_VAL_LIST, NULL, $(1)->ast);
 			}
 
 			//		"initializer_list: initializer_list , initializer ",
 			if( 119 == act_num ) {
+				head_token->ast = E_newast(E_INIT_VAL_LIST, $(3)->ast, $(1)->ast);
 			}
 
 			//		"statement: compound_statement ",
@@ -567,6 +572,9 @@ void syntax(string filename) {
 	                            "\t.section\t.note.GNU-stack,\"\",@progbits\n" , s->ast->code);
 			printf("LAST !!!\n");
 			printf("%s", result);
+			FILE * file_out = fopen("result.s", "w");
+			fprintf(file_out, "%s", result);
+			fclose(file_out);
 			printf("Yahoo!!!\n");
 			return;
 		}
@@ -626,7 +634,14 @@ string E_newLabel() {
 	sprintf(ret, ".L%d", label_count++);
 	return ret;
 }
+string E_newTemp() {
+	string ret = checked_malloc(10);
+	sprintf(ret, "-%d(%%ebp)", local_val + temp_val );
+	temp_val += 4;
+	return ret;
+}
 void translate( E_ast ast ) {
+	int base = 0;
 	if ( NULL == ast ) {
 		assert(0);
 		return;
@@ -638,13 +653,37 @@ void translate( E_ast ast ) {
 	string begin_label;
 
 	switch(ast->type) {
-	case E_INIT_DECL: 	//		"init_declarator: declarator = initializer ",
+	case E_UNARY_EXP:
+//		translate(ast->l);
+		translate(ast->r);
+		switch(ast->l->type) {
+		case E_TAKE_ADDR:
+			ast->addr = E_newTemp();
+			ast->code = checked_malloc( strlen(ast->r->code) + 100 );
+			sprintf(ast->code, "%s"
+							   "\tleal %s, %%eax\n"
+							   "\tmovl %%eax, %s\n",
+							   ast->r->code,
+							   ast->r->addr,
+							   ast->addr);
+			ast->var_t = E_POINTER;
+			return;
+		default:
+			assert(0);
+			return;
+		}
+		return;
+	case E_INIT_DECL: 	//	"init_declarator: declarator = initializer ",
 		ast->l->var_t = ast->var_t;
 		translate(ast->l);
-		translate(ast->r);
+		printf("after left %s\n", ast->l->addr);
+		if( ast->r != NULL )
+			translate(ast->r);
+		else
+			assert(0);
 		sym = E_lookup(ast->l->s);
+		assert(sym);
 		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->r->code ) + 500 );
-		assert( sym );
 		if ( E_VAR_SYM == sym->symtype) {
 			sprintf( ast->code, "\tmovl %s, %%eax\n"
 								"\tmovl %%eax, %s\n",
@@ -653,7 +692,22 @@ void translate( E_ast ast ) {
 			ast->addr = ast->l->addr;
 		}
 		else if ( E_ARRAY_SYM == sym->symtype ) {
-			assert(0);
+			assert( E_INIT_VAL_LIST == ast->r->type );
+			U_list head = ast->r->list;
+			int val = 0;
+			int count = ast->r->list_c;
+			base = 0;
+			sscanf(ast->l->addr, "-%d(%%ebp)", &base);
+			for(U_list p=head; p; p=p->next) {
+				printf("addr is %s\n", (string)p->val.addr);
+				sscanf((string)p->val.addr, "$%d", &val);
+				printf("get number %d\n", val);
+				sprintf(ast->code+ strlen(ast->code),  "\tmovl %s, -%d(%%ebp)\n",
+												       (string)p->val.addr,
+												       base + 4 * (ast->r->list_c-count));
+				count--;
+			}
+			assert(count == 0);
 		}
 		else {
 			assert(0);
@@ -661,35 +715,99 @@ void translate( E_ast ast ) {
 		return;
 	case E_ARRAY_REF:
 		//		"postfix_expression: postfix_expression [ expression ] ", E_ARRAY_REF
+		translate(ast->l);
+		sym = E_lookup(ast->l->s);
+		assert(sym);
+		sscanf(ast->l->addr, "-%d(%%ebp)", &base);
+		base = base + (sym->width-1) * 4;
+		ast->addr = checked_malloc(40);
+		sprintf(ast->addr, "-%d(%%ebp,%%ebx,4)", base);
 		translate(ast->r);
-		list_insert(ast->list, &ast->r->addr, ADDRESS);
-		if(ast->l->type == E_SYM_REF) {
-			translate(ast->l);
-			if(E_INT_TYPE == ast->var_t) {
+		ast->code = checked_malloc( strlen(ast->l->code) + strlen(ast->r->code) + 200);
+		sprintf(ast->code, "%s%s"
+						   "\tmovl %s, %%ebx\n",
+						   ast->r->code,
+						   ast->l->code,
+						   ast->r->addr);
+		ast->var_t = E_INT_TYPE; //FIXME latter
+		return;
+//TODO support high dimensinal array
+//		list_insert(&ast->list, &ast->r->addr, ADDRESS);
+//		if(ast->l->type == E_SYM_REF) {
+//			translate(ast->l);
+//			if(E_INT_TYPE == ast->var_t) {
+//			}
+//			else {
+//				assert(0);
+//			}
+//		}
+//		else if(ast->l->type == E_ARRAY_REF) {
+//			ast->l->var_t = ast->var_t;
+//			ast->l->list = ast->list;
+//			translate(ast->l);
+//		}
+//		else
+//			assert(0);
+		return;
+	case E_INIT_VAL_LIST: // "initializer_list: initializer_list , initializer ",
+		if(NULL == ast->l) { // in fact, this is unnecessary
+			translate(ast->r);
+			ast->list = NULL;
+			ast->list_c = 1;
+		    list_insert(&ast->list, &ast->r->addr, ADDRESS);
+			return;
+		}
+		translate(ast->l);
+		translate(ast->r);
+		ast->list = ast->l->list;
+		ast->list_c = ast->l->list_c+1;
+		list_insert(&ast->list, &ast->r->addr, ADDRESS);
+		return;
+	case E_DECLAR_STORAGE:
+
+		ast->l->var_t = ast->var_t;
+		ast->l->isarray = ast->isarray;
+		ast->l->isfunc = ast->isfunc;
+		translate(ast->l);
+		ast->s = ast->l->s;
+		ast->addr = ast->l->addr;
+		if( E_ARRAY_BODY == ast->l->type) {
+			U_list head = ast->l->list;
+			int width = 0;
+			int count = ast->l->list_c;
+			assert(count == 1);
+			for(U_list p=head; p; p=p->next) {
+				printf("addr is %s\n", (string)p->val.addr);
+				sscanf((string)p->val.addr, "$%d", &width);
+				printf("get number %d\n", width);
+				count--;
 			}
-			else {
+			assert(count == 0);
+			if( E_INT_TYPE == ast->var_t)
+				local_val += width * 4;
+			else
 				assert(0);
-			}
 		}
-		else if(ast->l->type == E_ARRAY_REF) {
-			ast->l->var_t = ast->var_t;
-			ast->l->list = ast->list;
-			translate(ast->l);
+		else {
+//			ast = ast->l;
 		}
-		else
-			assert(0);
 		return;
 	case E_ARRAY_BODY:
-		//		"direct_declarator: direct_declarator [ assignment_expression ] ",  E_ARRAY
+		//  "direct_declarator: direct_declarator [ assignment_expression ] ",  E_ARRAY
 		translate(ast->r);
-		list_insert(ast->list, &ast->r->addr, ADDRESS);
+		list_insert(&ast->list, &ast->r->addr, ADDRESS);
 //		if(ast->l->type == E_SYM) {
-			ast->l->var_t = ast->var_t;
-			ast->l->list = ast->list;
-			ast->l->isarray = TRUE;
-			translate(ast->l);
-			ast->code = ast->l->code;  // TODO merge code to empower assignment_exp
-			ast->addr = ast->l->addr;
+		ast->l->var_t = ast->var_t;
+		ast->l->list = ast->list;
+		ast->l->isarray = TRUE;
+		translate(ast->l);
+		ast->list_c = ast->l->list_c + 1;
+		ast->code = ast->l->code;  // TODO merge code to empower assignment_exp
+		ast->addr = ast->l->addr;
+		ast->s = ast->l->s;
+		sym = E_lookup(ast->s);
+		assert(sym);
+		sscanf(ast->r->addr, "$%d", &sym->width);
 //		}
 //		else
 //			assert(0);
@@ -851,7 +969,7 @@ void translate( E_ast ast ) {
 						   ast->r->addr,
 						   param_count,
 						   ast->l->code);
-		if( E_INT_TYPE == ast->r->var_t || E_STRING_LIETRAL_TYPE == ast->r->var_t ) {
+		if( E_INT_TYPE == ast->r->var_t || E_STRING_LIETRAL_TYPE == ast->r->var_t || E_POINTER == ast->r->var_t ) {
 			param_count+=4;
 		}
 		else {
@@ -910,11 +1028,11 @@ void translate( E_ast ast ) {
 		if( ast->isarray) {
 			sym->symtype = E_ARRAY_SYM;
 			ast->list_c = 0;
-			for( U_list p = ast->list; p; p = p->next)  ast->list_c++;
-			sym->addr = checked_malloc(0); //TODO go on here for array
-			assert(0);
+			ast->list = NULL;
+			ast->addr = sym->addr;
 		}
 		assert( sym->var_t == E_INT_TYPE );
+		printf("sym addr is %s\n", ast->addr);
 		return;
 	case E_NUM:  // const num
 //		ast = (E_num)ast;
@@ -976,7 +1094,7 @@ void translate( E_ast ast ) {
 			assert(0);
 		}
 		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->l->code ) +
-									strlen( ast->r->addr) + strlen( ast->r->addr) + 1024);
+									strlen( ast->r->addr) + strlen( ast->r->addr) + 100);
 		sprintf( ast->code, "%s%s"
 				            "\tmovl %s, %%eax\n"
 							"\tmovl $0, %%edx\n"
@@ -1002,9 +1120,9 @@ void translate( E_ast ast ) {
 			assert(0);
 		}
 		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->l->code ) +
-									strlen( ast->r->addr) + strlen( ast->r->addr) + 1024);
-		sprintf( ast->code, "%s%s\tmovl %s, %%eax\n\timull %s, %%eax\n",
-				 ast->l->code, ast->r->code, ast->l->addr, ast->r->addr);
+									strlen( ast->r->addr) + strlen( ast->r->addr) + 100);
+		sprintf( ast->code, "%s\tmovl %s, %%eax\n%s\timull %s, %%eax\n",
+				 ast->l->code, ast->l->addr, ast->r->code, ast->r->addr);
 		ast->addr = (char *) checked_malloc( 20 );
 		sprintf( ast->addr, "-%d(%%ebp)", local_val+temp_val);
 		if (ast->var_t == E_INT_TYPE) // FIXME deal with type latter
@@ -1023,7 +1141,7 @@ void translate( E_ast ast ) {
 			assert(0);
 		}
 		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->l->code ) +
-									strlen( ast->r->addr) + strlen( ast->r->addr) + 1024);
+									strlen( ast->r->addr) + strlen( ast->r->addr) + 100);
 		sprintf( ast->code, "%s%s\tmovl %s, %%eax\n\tsubl %s, %%eax\n",
 				 ast->l->code, ast->r->code, ast->l->addr, ast->r->addr);
 		ast->addr = (char *) checked_malloc( 20 );
@@ -1043,10 +1161,10 @@ void translate( E_ast ast ) {
 		else {
 			assert(0);
 		}
-		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->l->code ) +
-									strlen( ast->r->addr) + strlen( ast->r->addr) + 1024);
-		sprintf( ast->code, "%s%s\tmovl %s, %%eax\n\taddl %s, %%eax\n",
-				 ast->l->code, ast->r->code, ast->l->addr, ast->r->addr);
+		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->l->addr ) +
+									strlen( ast->r->code) + strlen( ast->r->addr) + 100);
+		sprintf( ast->code, "%s\tmovl %s, %%eax\n%s\taddl %s, %%eax\n",
+				 ast->l->code, ast->l->addr, ast->r->code, ast->r->addr);
 		ast->addr = (char *) checked_malloc( 20 );
 		sprintf( ast->addr, "-%d(%%ebp)", local_val+temp_val);
 		if (ast->var_t == E_INT_TYPE) // FIXME deal with type latter
@@ -1059,8 +1177,10 @@ void translate( E_ast ast ) {
 		translate(ast->r);
 		translate(ast->l);
 		assert(ast->l->code && ast->l->code && ast->r->code && ast->r->code );
+		printf("request %d\n", strlen( ast->l->code ) + strlen( ast->r->code ) +
+							   strlen( ast->r->addr ) + strlen( ast->l->addr ) + 100);
 		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->r->code ) +
-									strlen( ast->r->addr ) + strlen( ast->l->addr ) + 1024);
+									strlen( ast->r->addr ) + strlen( ast->l->addr ) + 100);
 		sprintf( ast->code, "%s%s\tmovl %s, %%eax\n\tmovl %%eax, %s\n",
 				 ast->l->code,
 				 ast->r->code,

@@ -1,0 +1,82 @@
+	.file	"simple1.c"
+	.text
+	.section	.rodata
+	.align 4
+.LC0:
+	.string "%d"
+	.align 4
+.LC1:
+	.string "%d\n"
+	.global main
+	.type main, @function
+	main:
+.LFB0:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl %esp, %ebp
+	.cfi_def_cfa_register 5
+	subl $84, %esp
+	movl $10, %eax
+	movl %eax, -4(%ebp)
+	movl $20, %eax
+	movl %eax, -8(%ebp)
+	movl $12, -20(%ebp)
+	movl $11, -16(%ebp)
+	movl $10, -12(%ebp)
+	movl $4, %eax
+	movl %eax, -4(%ebp)
+	movl $5, %eax
+	movl %eax, -8(%ebp)
+	movl $0, %eax
+	movl %eax, -4(%ebp)
+.L1:
+	movl $1, -56(%ebp)
+	movl $5, %eax
+	cmpl %eax, -4(%ebp)
+	jl .L0
+	movl $0, -56(%ebp)
+.L0:
+	cmpl $1, -56(%ebp)
+	jne  .L2
+	movl -4(%ebp), %eax
+	movl %eax, -4(%ebp)
+	addl $1, -4(%ebp)
+	jmp .L1
+.L2:
+	movl -4(%ebp), %eax
+	imull $13, %eax
+	movl %eax, -60(%ebp)
+	movl -60(%ebp), %eax
+	movl %eax, -4(%ebp)
+	movl -4(%ebp), %eax
+	imull $1, %eax
+	movl %eax, -64(%ebp)
+	movl -64(%ebp), %eax
+	movl %eax, -4(%ebp)
+	movl -4(%ebp), %eax
+	subl $1, %eax
+	movl %eax, -68(%ebp)
+	movl -68(%ebp), %eax
+	movl %eax, -4(%ebp)
+	leal -4(%ebp), %eax
+	movl %eax, -72(%ebp)
+	movl -72(%ebp), %eax
+	movl %eax, 4(%esp)
+	movl $.LC0, %eax
+	movl %eax, 0(%esp)
+	call	scanf
+	movl -4(%ebp), %eax
+	movl %eax, 4(%esp)
+	movl $.LC1, %eax
+	movl %eax, 0(%esp)
+	call	printf
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+.LBE0:	.size main, .-main
+	.ident	"GCC: (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3"
+	.section	.note.GNU-stack,"",@progbits

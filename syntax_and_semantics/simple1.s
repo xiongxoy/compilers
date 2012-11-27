@@ -24,8 +24,8 @@ main:
 	movl	$0, 24(%esp)
 	jmp	.L2
 .L3:
-	movl	$1, 24(%esp)
-	movl	$6, 24(%esp)
+	movl	24(%esp), %eax
+	movl	%eax, 24(%esp)
 	movl	24(%esp), %eax
 	addl	$1, %eax
 	movl	%eax, 24(%esp)
@@ -33,6 +33,18 @@ main:
 	movl	24(%esp), %eax
 	cmpl	$4, %eax
 	jle	.L3
+	movl	24(%esp), %edx
+	movl	%edx, %eax
+	addl	%eax, %eax
+	addl	%edx, %eax
+	sall	$2, %eax
+	addl	%edx, %eax
+	movl	%eax, 24(%esp)
+	movl	24(%esp), %eax
+	movl	%eax, 24(%esp)
+	movl	24(%esp), %eax
+	subl	$1, %eax
+	movl	%eax, 24(%esp)
 	leal	24(%esp), %eax
 	movl	%eax, 4(%esp)
 	movl	$.LC0, (%esp)
