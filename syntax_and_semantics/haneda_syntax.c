@@ -408,10 +408,12 @@ void syntax(string filename) {
 
 			//		"parameter_list: parameter_list , parameter_declaration ",
 			if( 96 == act_num ) {
+				assert(0);
 			}
 
 			//		"parameter_declaration: declaration_specifiers declarator ",
 			if( 97 == act_num ) {
+				assert(0);
 			}
 
 			//		"initializer: assignment_expression ",
@@ -508,6 +510,7 @@ void syntax(string filename) {
 
 			//		"jump_statement: RETURN expression ; ",
 			if( 149 == act_num ) {
+				head_token->ast = E_newast(E_RET, $(3)->ast, NULL);
 			}
 
 			//		"translation_unit: external_declaration ",
@@ -518,6 +521,7 @@ void syntax(string filename) {
 
 			//		"translation_unit: translation_unit external_declaration ",
 			if( 151 == act_num ) {
+				assert(0);
 			}
 
 			//		"external_declaration: function_definition ",
@@ -651,8 +655,11 @@ void translate( E_ast ast ) {
 	string false_label;
 	string end_label;
 	string begin_label;
+	string left_addr;
 
 	switch(ast->type) {
+	case E_RET:
+		return;
 	case E_UNARY_EXP:
 //		translate(ast->l);
 		translate(ast->r);
@@ -897,7 +904,7 @@ void translate( E_ast ast ) {
 						   "\tmovl $1, %s\n"
 				  	  	   "\tmovl %s, %%eax\n"
 				           "\tcmpl %s, %%eax\n"
-						   "\tjge %s\n"
+						   "\tjl %s\n"
 						   "\tmovl $0, %s\n"
 						   "%s:\n",
 						   ast->l->code,
@@ -1119,10 +1126,21 @@ void translate( E_ast ast ) {
 		else {
 			assert(0);
 		}
+		left_addr = E_newTemp();
 		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->l->code ) +
 									strlen( ast->r->addr) + strlen( ast->r->addr) + 100);
-		sprintf( ast->code, "%s\tmovl %s, %%eax\n%s\timull %s, %%eax\n",
-				 ast->l->code, ast->l->addr, ast->r->code, ast->r->addr);
+		sprintf( ast->code, "%s"
+							"\tmovl %s, %%eax\n"
+							"\tmovl %%eax, %s\n"
+							"%s"
+							"\tmovl %s, %%eax\n"
+							"\timull %s, %%eax\n",
+							ast->l->code,
+							ast->l->addr,
+							left_addr,
+							ast->r->code,
+							ast->r->addr,
+							left_addr );
 		ast->addr = (char *) checked_malloc( 20 );
 		sprintf( ast->addr, "-%d(%%ebp)", local_val+temp_val);
 		if (ast->var_t == E_INT_TYPE) // FIXME deal with type latter
@@ -1163,8 +1181,22 @@ void translate( E_ast ast ) {
 		}
 		ast->code = checked_malloc( strlen( ast->l->code ) + strlen( ast->l->addr ) +
 									strlen( ast->r->code) + strlen( ast->r->addr) + 100);
-		sprintf( ast->code, "%s\tmovl %s, %%eax\n%s\taddl %s, %%eax\n",
-				 ast->l->code, ast->l->addr, ast->r->code, ast->r->addr);
+		left_addr = E_newTemp();
+		sprintf( ast->code, "%s"
+//							"aaa\n"
+							"\tmovl %s, %%eax\n"
+							"\tmovl %%eax, %s\n"
+//							"ddd\n"
+							"%s"
+							"\tmovl %s, %%eax\n"
+							"\taddl %s, %%eax\n",
+							ast->l->code,
+							ast->l->addr,
+							left_addr,
+							ast->r->code,
+							ast->r->addr,
+							left_addr
+							);
 		ast->addr = (char *) checked_malloc( 20 );
 		sprintf( ast->addr, "-%d(%%ebp)", local_val+temp_val);
 		if (ast->var_t == E_INT_TYPE) // FIXME deal with type latter

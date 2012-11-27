@@ -31,7 +31,7 @@ int main() {
 	if(mean >= 60){
 		mean = mean - 60;
 		 printf("mean is %d\n", mean);
-		printf("the score of student number %d is %d higher than 60.\n", stu_number, mean);
+		printf("the score of student number %d is df higher than 60.\n", stu_number, mean);
 	}
 	else{
 		mean = 60 - mean;

@@ -98,6 +98,7 @@ typedef enum {
 	E_TAKE_ADDR,
 	E_DECLAR_STORAGE,
 	E_INIT_VAL_LIST,
+	E_RET,
 } node_type;
 typedef enum {
 	E_NONE_TYPE = 1,
