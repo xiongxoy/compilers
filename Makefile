@@ -1,2 +1,2 @@
 all:
-	echo "haha"
+	@echo "haha"
