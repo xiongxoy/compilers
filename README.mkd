@@ -1,0 +1,5 @@
+#Introduction
+This a c compiler written purely in C.
+Currently I use AT&T assembly syntax,
+latter I want to try LLVM.
+
