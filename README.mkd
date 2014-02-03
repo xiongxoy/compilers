@@ -1,5 +1,8 @@
 #Introduction
-This a c compiler written purely in C.
-Currently I use AT&T assembly syntax,
-latter I want to try LLVM.
+This a C compiler written purely in C, which converts C source code to AT&T syntax assembly.
+
+A large amount of work is devoted to the automatic generation of LR(1) automaton, which is often down by tools like Yacc or the newer Bison.
+You view this code as a minimum and conscious demonstration of the tricks behind tools like Bison.
+
+The semantics part used a straight-forward abstract syntax tree(AST) approach, memory efficiency is traded off for consciousness, but this ANSI-C program is still fast.
 
