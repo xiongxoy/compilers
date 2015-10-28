@@ -1,8 +1,8 @@
 #Introduction
 This a C compiler written purely in C, which converts C source code to AT&T syntax assembly.
 
-A large amount of work is devoted to the automatic generation of LR(1) automaton, which is often down by tools like Yacc or the newer Bison.
-You can view this project as a minimum and conscious demonstration of the tricks behind tools like Bison.
+A large amount of work is devoted to the automatic generation of LR(1) automaton, which is often done by tools like Yacc or the newer Bison.
+You can treat this project as a minimum and conscious demonstration of the tricks behind tools like Bison.
 
-The semantics part used a straight-forward abstract syntax tree(AST) approach, memory efficiency is traded off for consciousness, but this ANSI-C program is nevertheless fast.
+The semantics part used a straight-forward abstract syntax tree (AST) approach, memory efficiency is traded off for consciousness, but this ANSI-C program is still fast.
 
