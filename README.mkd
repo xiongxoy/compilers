@@ -1,4 +1,5 @@
 #Introduction
+
 This a C compiler written purely in C, which converts C source code to AT&T syntax assembly.
 
 A large amount of work is devoted to the automatic generation of LR(1) automaton, which is often done by tools like Yacc or the newer Bison.
